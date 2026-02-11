@@ -2,44 +2,41 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kraken Analytics | Conectando...</title>
     <style>
         body { background-color: #1a1a1a; color: white; text-align: center; font-family: sans-serif; display: flex; flex-direction: column; justify-content: center; height: 100vh; margin: 0; }
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #7030a0; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 20px auto; }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #7030a0; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
     <div class="loader"></div>
-    <h1 id="status">Redirigiendo...</h1>
+    <h2 id="msg">Redirigiendo...</h2>
 
     <script>
-        // URL de tu implementación (Actualízala si cambia al poner "Cualquier persona")
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxtSNoVA0z7uXr7HDrjKxvbKj0DDQ9-HAR2cKhNjlVMlq1W8HxBDCyw_Zi0DiCPvpiJ/exec";
-        
         const urlParams = new URLSearchParams(window.location.search);
         const k = urlParams.get('k');
 
         if (k) {
-            fetch(`${SCRIPT_URL}?k=${k}&ref=${encodeURIComponent(document.referrer)}`, {
+            // Agregamos un timestamp para evitar que el navegador use una respuesta vieja (caché)
+            fetch(`${SCRIPT_URL}?k=${k}&ref=${encodeURIComponent(document.referrer)}&t=${Date.now()}`, {
                 method: 'GET',
-                mode: 'no-cors' // Cambiamos a no-cors para evitar bloqueos de navegador
+                redirect: 'follow'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.url) {
+                    window.location.replace(data.url);
+                } else {
+                    document.getElementById('msg').innerText = "Enlace no encontrado.";
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('msg').innerHTML = "Error de conexión.<br><small>Verifica los permisos del script.</small>";
             });
-
-            // Como usamos no-cors, hacemos una segunda llamada para obtener la URL
-            fetch(`${SCRIPT_URL}?k=${k}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.url) {
-                        window.location.replace(data.url);
-                    } else {
-                        document.body.innerHTML = "<h1>Enlace no encontrado</h1>";
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.body.innerHTML = "<h1>Error de Conexión</h1><p>Asegúrate de que el Script esté configurado para 'Cualquier persona'.</p>";
-                });
         } else {
             window.location.replace("https://krakenanalytics.mx");
         }
