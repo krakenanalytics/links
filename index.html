@@ -14,29 +14,26 @@
     <p>Conectando con Kraken Analytics...</p>
 
     <script>
-        // URL de tu Google Apps Script (el que crearemos a continuación)
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxtSNoVA0z7uXr7HDrjKxvbKj0DDQ9-HAR2cKhNjlVMlq1W8HxBDCyw_Zi0DiCPvpiJ/exec";
-
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxhaDaCMpllKxI24gd15LsbUz7N8omej0gZoeHdkIfpG8WjaIjON9YfUhHJnp-zpiRs/exec";
         const urlParams = new URLSearchParams(window.location.search);
         const k = urlParams.get('k');
 
         if (k) {
-            // Enviamos los datos para registro de métricas y obtenemos el destino
             fetch(`${SCRIPT_URL}?k=${k}&ref=${document.referrer}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.url) {
                         window.location.replace(data.url);
                     } else {
-                        document.body.innerHTML = "<h1>Enlace no encontrado</h1><p>El código proporcionado no existe.</p>";
+                        document.body.innerHTML = "<h1>Enlace no encontrado</h1><p>El código no existe en la base de datos de Kraken.</p>";
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    document.body.innerHTML = "<h1>Error de conexión</h1><p>Intente más tarde.</p>";
+                    document.body.innerHTML = "<h1>Error de conexión</h1><p>Por favor, intente de nuevo.</p>";
                 });
         } else {
-            window.location.replace("https://krakenanalytics.mx"); // Si no hay código, manda a tu web principal
+            window.location.replace("https://krakenanalytics.mx"); 
         }
     </script>
 </body>
