@@ -7,7 +7,6 @@
         body { background-color: #1a1a1a; color: white; text-align: center; font-family: sans-serif; display: flex; flex-direction: column; justify-content: center; height: 100vh; margin: 0; }
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #7030a0; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        h1 { font-weight: 300; letter-spacing: 1px; }
     </style>
 </head>
 <body>
@@ -15,36 +14,32 @@
     <h1 id="status">Redirigiendo...</h1>
 
     <script>
-        // URL de tu nueva implementación
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxhaDaCMpllKxI24gd15LsbUz7N8omej0gZoeHdkIfpG8WjaIjON9YfUhHJnp-zpiRs/exec";
+        // URL de tu implementación (Actualízala si cambia al poner "Cualquier persona")
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxtSNoVA0z7uXr7HDrjKxvbKj0DDQ9-HAR2cKhNjlVMlq1W8HxBDCyw_Zi0DiCPvpiJ/exec";
         
         const urlParams = new URLSearchParams(window.location.search);
         const k = urlParams.get('k');
 
         if (k) {
-            console.log("Procesando código:", k);
-            
-            // Usamos fetch con modo cors y seguimiento de redirección
             fetch(`${SCRIPT_URL}?k=${k}&ref=${encodeURIComponent(document.referrer)}`, {
                 method: 'GET',
-                mode: 'cors',
-                redirect: 'follow'
-            })
-            .then(response => {
-                if (!response.ok) throw new Error("Error en la respuesta del servidor");
-                return response.json();
-            })
-            .then(data => {
-                if (data.url) {
-                    window.location.replace(data.url);
-                } else {
-                    document.body.innerHTML = "<h1>Enlace no encontrado</h1><p>El código no existe en la base de datos.</p>";
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.body.innerHTML = "<h1>Error de Conexión</h1><p>Verifica los permisos del script de Google.</p>";
+                mode: 'no-cors' // Cambiamos a no-cors para evitar bloqueos de navegador
             });
+
+            // Como usamos no-cors, hacemos una segunda llamada para obtener la URL
+            fetch(`${SCRIPT_URL}?k=${k}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.url) {
+                        window.location.replace(data.url);
+                    } else {
+                        document.body.innerHTML = "<h1>Enlace no encontrado</h1>";
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.body.innerHTML = "<h1>Error de Conexión</h1><p>Asegúrate de que el Script esté configurado para 'Cualquier persona'.</p>";
+                });
         } else {
             window.location.replace("https://krakenanalytics.mx");
         }
