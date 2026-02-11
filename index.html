@@ -2,7 +2,6 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kraken Analytics | Conectando...</title>
     <style>
         body { background-color: #1a1a1a; color: white; text-align: center; font-family: sans-serif; display: flex; flex-direction: column; justify-content: center; height: 100vh; margin: 0; }
@@ -12,33 +11,35 @@
 </head>
 <body>
     <div class="loader"></div>
-    <h2 id="msg">Redirigiendo...</h2>
+    <h2 id="status">Redirigiendo...</h2>
 
     <script>
+        // URL de tu implementación pública (Versión "Cualquiera")
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxtSNoVA0z7uXr7HDrjKxvbKj0DDQ9-HAR2cKhNjlVMlq1W8HxBDCyw_Zi0DiCPvpiJ/exec";
+        
         const urlParams = new URLSearchParams(window.location.search);
         const k = urlParams.get('k');
 
         if (k) {
-            // Agregamos un timestamp para evitar que el navegador use una respuesta vieja (caché)
-            fetch(`${SCRIPT_URL}?k=${k}&ref=${encodeURIComponent(document.referrer)}&t=${Date.now()}`, {
-                method: 'GET',
-                redirect: 'follow'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.url) {
-                    window.location.replace(data.url);
-                } else {
-                    document.getElementById('msg').innerText = "Enlace no encontrado.";
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('msg').innerHTML = "Error de conexión.<br><small>Verifica los permisos del script.</small>";
-            });
+            console.log("Buscando código:", k);
+            
+            // Fetch estándar ahora que el script es público
+            fetch(`${SCRIPT_URL}?k=${k}&t=${Date.now()}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.url) {
+                        window.location.replace(data.url);
+                    } else {
+                        document.getElementById('status').innerText = "Enlace no encontrado en la base de datos.";
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    document.getElementById('status').innerText = "Error de conexión con el servidor.";
+                });
         } else {
-            window.location.replace("https://krakenanalytics.mx");
+            // Si no hay parámetro k, mandamos al sitio principal
+            window.location.replace("https://krakenanalytics.mx/servicios"); 
         }
     </script>
 </body>
