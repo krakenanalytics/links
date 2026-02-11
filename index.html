@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Kraken Analytics | Redireccionando...</title>
+    <title>Kraken Analytics | Diagnóstico</title>
     <style>
         body { background-color: #1a1a1a; color: white; text-align: center; font-family: sans-serif; display: flex; flex-direction: column; justify-content: center; height: 100vh; margin: 0; }
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #7030a0; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
@@ -11,29 +11,36 @@
 </head>
 <body>
     <div class="loader"></div>
-    <p>Conectando con Kraken Analytics...</p>
+    <p id="status">Iniciando conexión...</p>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxhaDaCMpllKxI24gd15LsbUz7N8omej0gZoeHdkIfpG8WjaIjON9YfUhHJnp-zpiRs/exec";
+        
         const urlParams = new URLSearchParams(window.location.search);
         const k = urlParams.get('k');
 
         if (k) {
+            document.getElementById('status').innerText = "Buscando enlace: " + k;
+            
             fetch(`${SCRIPT_URL}?k=${k}&ref=${document.referrer}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) throw new Error("Error en servidor de Google");
+                    return response.json();
+                })
                 .then(data => {
                     if (data.url) {
+                        document.getElementById('status').innerText = "Redirigiendo a: " + data.url;
                         window.location.replace(data.url);
                     } else {
-                        document.body.innerHTML = "<h1>Enlace no encontrado</h1><p>El código no existe en la base de datos de Kraken.</p>";
+                        document.body.innerHTML = "<h1>Enlace no encontrado</h1><p>El código '" + k + "' no está en tu Google Sheets.</p>";
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    document.body.innerHTML = "<h1>Error de conexión</h1><p>Por favor, intente de nuevo.</p>";
+                    document.body.innerHTML = "<h1>Error de Comunicación</h1><p>" + error.message + "</p>";
                 });
         } else {
-            window.location.replace("https://krakenanalytics.mx"); 
+            // Si llega aquí, es porque no detectó el ?k= en la URL
+            document.body.innerHTML = "<h1>Error de Parámetro</h1><p>No se detectó ningún código en la URL. Verifica que el link tenga '?k='.</p>";
         }
     </script>
 </body>
